@@ -1,0 +1,37 @@
+def releaseSigningPropertiesFile = rootProject.file("release-signing.properties")
+def releaseSigningProperties = new Properties()
+def hasReleaseSigning = releaseSigningPropertiesFile.exists()
+
+if (hasReleaseSigning) {
+    releaseSigningPropertiesFile.withInputStream { stream ->
+        releaseSigningProperties.load(stream)
+    }
+    ["storeFile", "storePassword", "keyAlias", "keyPassword"].each { key ->
+        if (!releaseSigningProperties.getProperty(key)) {
+            throw new GradleException("release-signing.properties missing required key: ${key}")
+        }
+    }
+}
+
+android {
+    signingConfigs {
+        if (hasReleaseSigning) {
+            releaseLocal {
+                storeFile rootProject.file(releaseSigningProperties.getProperty("storeFile"))
+                storePassword releaseSigningProperties.getProperty("storePassword")
+                keyAlias releaseSigningProperties.getProperty("keyAlias")
+                keyPassword releaseSigningProperties.getProperty("keyPassword")
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.releaseLocal
+            }
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}

@@ -1,0 +1,21 @@
+android {
+    applicationVariants.configureEach { variant ->
+        variant.assembleProvider.get().doLast {
+            variant.outputs.each { output ->
+                def versionName = variant.versionName
+                def simpleName = "${project.name}-${variant.name}.apk"
+                def versionedName = "${project.name}-${variant.name}-v${versionName}.apk"
+                copy {
+                    from output.outputFile
+                    into file(rootDir.path + "/apks")
+                    rename { simpleName }
+                }
+                copy {
+                    from output.outputFile
+                    into file(rootDir.path + "/apks")
+                    rename { versionedName }
+                }
+            }
+        }
+    }
+}

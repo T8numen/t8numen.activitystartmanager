@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="xposed_scope">
+        <item>android</item>
+        <item>com.oplus.securitypermission</item>
+        <item>com.coloros.securitypermission</item>
+        <item>com.android.permissioncontroller</item>
+    </string-array>
+</resources>
