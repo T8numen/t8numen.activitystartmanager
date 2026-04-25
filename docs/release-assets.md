@@ -15,15 +15,15 @@
 调试 APK：
 
 ```text
-apks/XposedJumpAppInterceptor-debug.apk
-apks/XposedJumpAppInterceptor-debug-v版本号.apk
+apks/activitystartmanager-debug.apk
+apks/activitystartmanager-debug-v版本号.apk
 ```
 
 发布 APK：
 
 ```text
-apks/XposedJumpAppInterceptor-release.apk
-apks/XposedJumpAppInterceptor-release-v版本号.apk
+apks/activitystartmanager-release.apk
+apks/activitystartmanager-release-v版本号.apk
 ```
 
 上传 Xposed Modules Repo / GitHub Release 时应使用 release APK，不应使用 debug APK。
@@ -31,7 +31,7 @@ apks/XposedJumpAppInterceptor-release-v版本号.apk
 ## 源码归档命名
 
 ```text
-source-archives/Android-XposedTest-v版本号.zip
+source-archives/t8numen.activitystartmanager-v版本号.zip
 ```
 
 源码归档必须排除：
@@ -64,9 +64,9 @@ release-artifacts/SHA256SUMS-v版本号.txt
 
 首次发布建议上传：
 
-1. `XposedJumpAppInterceptor-release-v版本号.apk`
+1. `activitystartmanager-release-v版本号.apk`
 2. `SHA256SUMS-v版本号.txt`
-3. `Android-XposedTest-v版本号.zip`
+3. `t8numen.activitystartmanager-v版本号.zip`
 
 Release tag 必须使用：
 
@@ -77,7 +77,7 @@ VERSION_CODE-VERSION_NAME
 例如：
 
 ```text
-36-1.6.5
+37-1.6.6
 ```
 
 ## 当前维护约定

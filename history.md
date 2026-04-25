@@ -1,5 +1,12 @@
 # 版本记录
 
+## 1.6.6 - 2026-04-25
+
+- 做溯源清理：移除未使用的 `ReflectUtil` 和 `ResourceUtil`，避免继续保留早期模板工具类。
+- 重写 `LogUtil` 日志工具实现，保持 system_server 中不写文件，降低清理过程引入系统稳定性风险。
+- README 新增对 `MagicianGuo/Android-XposedTest` 的致谢，说明早期构建和开发参考了其项目结构与 Xposed 模块示例思路。
+- Gradle 子模块和发布文档中的 APK/源码归档名改为当前项目名，减少旧项目命名残留。
+
 ## 1.6.5 - 2026-04-25
 
 - 准备公开发布所需资料：新增 `SUMMARY`，重写 `README.md`，补充 Xposed Modules Repo 提交流程说明。

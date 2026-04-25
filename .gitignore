@@ -19,4 +19,5 @@ local.properties
 /release-signing.properties
 /local-signing/
 /release-artifacts/
+/source-archives/
 **/build/

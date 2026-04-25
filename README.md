@@ -14,8 +14,8 @@
 
 - 应用名：`Activity启动管理`
 - 包名：`t8numen.activitystartmanager`
-- 当前版本：`1.6.5`
-- Xposed Modules Repo Release tag：`36-1.6.5`
+- 当前版本：`1.6.6`
+- Xposed Modules Repo Release tag：`37-1.6.6`
 - 推荐环境：LSPosed 1.9.2、已 Root 设备
 - 已测试环境：ColorOS / Android 15
 
@@ -99,14 +99,14 @@ allow * com.android.documentsui/.picker.PickActivity
 
 ```powershell
 $env:GRADLE_USER_HOME = (Join-Path (Get-Location) '.gradle-local')
-.\gradlew.bat :XposedJumpAppInterceptor:testDebugUnitTest :XposedJumpAppInterceptor:assembleDebug
+.\gradlew.bat :activitystartmanager:testDebugUnitTest :activitystartmanager:assembleDebug
 ```
 
 发布构建：
 
 ```powershell
 $env:GRADLE_USER_HOME = (Join-Path (Get-Location) '.gradle-local')
-.\gradlew.bat :XposedJumpAppInterceptor:testDebugUnitTest :XposedJumpAppInterceptor:assembleRelease
+.\gradlew.bat :activitystartmanager:testDebugUnitTest :activitystartmanager:assembleRelease
 ```
 
 发布签名配置读取仓库根目录的 `release-signing.properties`，该文件和本地 keystore 不应提交到 Git。
@@ -117,7 +117,7 @@ Xposed Modules Repo 要求：
 
 - GitHub 仓库名：`t8numen.activitystartmanager`
 - 仓库描述：`Activity启动管理`
-- Release tag：`36-1.6.5`
+- Release tag：`37-1.6.6`
 - Release 资产：上传 release APK
 - 仓库根目录保留 `SUMMARY` 和 `README.md`
 
@@ -131,3 +131,7 @@ Xposed Modules Repo 要求：
 - `docs/release-checklist.md`
 - `docs/release-assets.md`
 - `docs/xposed-modules-repo-submission.md`
+
+## 致谢
+
+本项目早期构建和开发参考了 [MagicianGuo/Android-XposedTest](https://github.com/MagicianGuo/Android-XposedTest) 的项目结构和 Xposed 模块示例思路，感谢原作者提供的学习参考。

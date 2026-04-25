@@ -34,13 +34,13 @@ keyPassword=...
 
 ```powershell
 $env:GRADLE_USER_HOME = (Join-Path (Get-Location) '.gradle-local')
-.\gradlew.bat :XposedJumpAppInterceptor:testDebugUnitTest :XposedJumpAppInterceptor:assembleRelease
+.\gradlew.bat :activitystartmanager:testDebugUnitTest :activitystartmanager:assembleRelease
 ```
 
 确认：
 
 - 单元测试通过。
-- `apks/` 中生成 `XposedJumpAppInterceptor-release-v版本号.apk`。
+- `apks/` 中生成 `activitystartmanager-release-v版本号.apk`。
 - APK 使用 release 签名，而不是 debug/test 签名。
 
 ## 实机验证
@@ -48,7 +48,7 @@ $env:GRADLE_USER_HOME = (Join-Path (Get-Location) '.gradle-local')
 安装 release APK 到测试机：
 
 ```powershell
-adb install -r apks/XposedJumpAppInterceptor-release-v版本号.apk
+adb install -r apks/activitystartmanager-release-v版本号.apk
 ```
 
 至少确认：
@@ -71,12 +71,12 @@ VERSION_CODE-VERSION_NAME
 例如：
 
 ```text
-36-1.6.5
+37-1.6.6
 ```
 
 Release 至少上传：
 
-- `XposedJumpAppInterceptor-release-v版本号.apk`
+- `activitystartmanager-release-v版本号.apk`
 - `SHA256SUMS-v版本号.txt`
 - 源码归档 zip
 
