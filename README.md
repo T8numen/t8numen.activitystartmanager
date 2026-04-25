@@ -14,8 +14,8 @@
 
 - 应用名：`Activity启动管理`
 - 包名：`t8numen.activitystartmanager`
-- 当前版本：`1.6.8`
-- Xposed Modules Repo Release tag：`39-1.6.8`
+- 当前版本：`1.6.9`
+- Xposed Modules Repo Release tag：`40-1.6.9`
 - 推荐环境：LSPosed 1.9.2、已 Root 设备
 - 已测试环境：ColorOS / Android 15
 
@@ -66,11 +66,27 @@ ask * org.videolan.vlc
 ask * *
 ask system *
 ask * system
+!agree com.source.app *|com.blocked.app
 ```
 
 ## 执行顺序
 
-规则按顺序匹配。先匹配 `agree/disagree`，两者都未命中时再匹配 `ask`。
+规则前加 `!` 表示高权重，例如：
+
+```text
+!agree com.source.app *
+!ask * com.target.app
+```
+
+高权重规则先按行号匹配，`agree`、`disagree` 和 `ask` 都可使用。普通规则仍保持兼容逻辑：先按顺序匹配 `agree/disagree`，两者都未命中时再按顺序匹配 `ask`。
+
+目标可加 `|` 排除，排除只作用于目标：
+
+```text
+!agree com.source.app *|com.blocked.app
+```
+
+含义是 `com.source.app` 可拉起任意非系统目标，但不包括 `com.blocked.app`。
 
 两段式参与方规则用于简化“来源或目标包含该应用”的规则：
 
@@ -131,7 +147,7 @@ Xposed Modules Repo 要求：
 
 - GitHub 仓库名：`t8numen.activitystartmanager`
 - 仓库描述：`Activity启动管理`
-- Release tag：`39-1.6.8`
+- Release tag：`40-1.6.9`
 - Release 资产：上传 release APK
 - 仓库根目录保留 `SUMMARY` 和 `README.md`
 

@@ -2,15 +2,23 @@ package t8numen.activitystartmanager;
 
 public final class ActivityLaunchRule {
     private static final RulePattern ANY_USER_APP_PATTERN = RulePattern.parse("*");
+    private static final RuleTargetPattern ANY_USER_APP_TARGET_PATTERN = RuleTargetPattern.parse("*");
 
     private final RuleAction action;
+    private final boolean highPriority;
     private final RulePattern sourcePattern;
-    private final RulePattern targetPattern;
+    private final RuleTargetPattern targetPattern;
     private final RulePattern participantPattern;
     private final int lineNumber;
 
     public ActivityLaunchRule(RuleAction action, RulePattern sourcePattern, RulePattern targetPattern, int lineNumber) {
+        this(action, sourcePattern, RuleTargetPattern.from(targetPattern), false, lineNumber);
+    }
+
+    public ActivityLaunchRule(RuleAction action, RulePattern sourcePattern, RuleTargetPattern targetPattern,
+                              boolean highPriority, int lineNumber) {
         this.action = action;
+        this.highPriority = highPriority;
         this.sourcePattern = sourcePattern;
         this.targetPattern = targetPattern;
         this.participantPattern = null;
@@ -18,7 +26,12 @@ public final class ActivityLaunchRule {
     }
 
     public ActivityLaunchRule(RuleAction action, RulePattern participantPattern, int lineNumber) {
+        this(action, participantPattern, false, lineNumber);
+    }
+
+    public ActivityLaunchRule(RuleAction action, RulePattern participantPattern, boolean highPriority, int lineNumber) {
         this.action = action;
+        this.highPriority = highPriority;
         this.sourcePattern = null;
         this.targetPattern = null;
         this.participantPattern = participantPattern;
@@ -27,6 +40,10 @@ public final class ActivityLaunchRule {
 
     public RuleAction getAction() {
         return action;
+    }
+
+    public boolean isHighPriority() {
+        return highPriority;
     }
 
     public int getDisplayLineNumber() {
@@ -111,9 +128,9 @@ public final class ActivityLaunchRule {
             return false;
         }
         return participantPattern.covers(other.sourcePattern)
-                && ANY_USER_APP_PATTERN.covers(other.targetPattern)
+                && ANY_USER_APP_TARGET_PATTERN.covers(other.targetPattern)
                 || ANY_USER_APP_PATTERN.covers(other.sourcePattern)
-                && participantPattern.covers(other.targetPattern);
+                && other.targetPattern.covers(participantPattern);
     }
 
     private boolean coversParticipantRule(RulePattern otherParticipantPattern) {
@@ -128,9 +145,9 @@ public final class ActivityLaunchRule {
             return false;
         }
         return participantPattern.overlaps(other.sourcePattern)
-                && ANY_USER_APP_PATTERN.overlaps(other.targetPattern)
+                && ANY_USER_APP_TARGET_PATTERN.overlaps(other.targetPattern)
                 || ANY_USER_APP_PATTERN.overlaps(other.sourcePattern)
-                && participantPattern.overlaps(other.targetPattern);
+                && other.targetPattern.overlaps(participantPattern);
     }
 
     private boolean isSpecificInternalPattern() {

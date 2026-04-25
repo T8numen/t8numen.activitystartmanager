@@ -19,24 +19,9 @@ public final class RuleParser {
             if (line.isEmpty() || line.startsWith("#")) {
                 continue;
             }
-            String[] parts = line.split("\\s+");
-            RuleAction action = RuleAction.fromToken(parts[0]);
-            if (action == null) {
-                continue;
-            }
-            if (parts.length == 2) {
-                rules.add(new ActivityLaunchRule(
-                        action,
-                        RulePattern.parse(parts[1]),
-                        index
-                ));
-            } else if (parts.length == 3) {
-                rules.add(new ActivityLaunchRule(
-                        action,
-                        RulePattern.parse(parts[1]),
-                        RulePattern.parse(parts[2]),
-                        index
-                ));
+            ParsedRuleLine parsedLine = parseRuleLine(line, index);
+            if (parsedLine != null) {
+                rules.add(parsedLine.toRule());
             }
         }
         return rules;
@@ -48,14 +33,23 @@ public final class RuleParser {
         }
         if (isInternalLaunch(source, target)) {
             for (ActivityLaunchRule rule : rules) {
-                if (rule.getAction() == RuleAction.DISAGREE
+                if (rule.isHighPriority()
                         && rule.isExplicitInternalRule(source, target)
                         && rule.matches(source, target)) {
                     return rule;
                 }
             }
             for (ActivityLaunchRule rule : rules) {
-                if (rule.getAction() == RuleAction.ASK
+                if (!rule.isHighPriority()
+                        && rule.getAction() == RuleAction.DISAGREE
+                        && rule.isExplicitInternalRule(source, target)
+                        && rule.matches(source, target)) {
+                    return rule;
+                }
+            }
+            for (ActivityLaunchRule rule : rules) {
+                if (!rule.isHighPriority()
+                        && rule.getAction() == RuleAction.ASK
                         && rule.isExplicitInternalRule(source, target)
                         && rule.matches(source, target)) {
                     return rule;
@@ -64,12 +58,17 @@ public final class RuleParser {
             return null;
         }
         for (ActivityLaunchRule rule : rules) {
-            if (rule.getAction() != RuleAction.ASK && rule.matches(source, target)) {
+            if (rule.isHighPriority() && rule.matches(source, target)) {
                 return rule;
             }
         }
         for (ActivityLaunchRule rule : rules) {
-            if (rule.getAction() == RuleAction.ASK && rule.matches(source, target)) {
+            if (!rule.isHighPriority() && rule.getAction() != RuleAction.ASK && rule.matches(source, target)) {
+                return rule;
+            }
+        }
+        for (ActivityLaunchRule rule : rules) {
+            if (!rule.isHighPriority() && rule.getAction() == RuleAction.ASK && rule.matches(source, target)) {
                 return rule;
             }
         }
@@ -104,6 +103,7 @@ public final class RuleParser {
                 if (earlierRule.getAction() == RuleAction.ASK
                         || laterRule.getAction() == RuleAction.ASK
                         || earlierRule.getAction() == laterRule.getAction()
+                        || earlierRule.isHighPriority() != laterRule.isHighPriority()
                         || !earlierRule.overlaps(laterRule)) {
                     continue;
                 }
@@ -115,5 +115,131 @@ public final class RuleParser {
             }
         }
         return conflicts;
+    }
+
+    public static boolean isValidRuleLine(String line) {
+        if (line == null) {
+            return false;
+        }
+        String trimmed = line.trim();
+        return !trimmed.isEmpty() && !trimmed.startsWith("#") && parseRuleLine(trimmed, 0) != null;
+    }
+
+    public static String formatRuleLine(String line) {
+        if (line == null) {
+            return "";
+        }
+        String trimmed = line.trim();
+        ParsedRuleLine parsedLine = parseRuleLine(trimmed, 0);
+        return parsedLine == null ? trimmed : parsedLine.format();
+    }
+
+    private static ParsedRuleLine parseRuleLine(String line, int lineNumber) {
+        String[] parts = line.split("\\s+");
+        if (parts.length == 0) {
+            return null;
+        }
+        boolean highPriority = false;
+        int actionIndex = 0;
+        String actionToken = parts[0];
+        if ("!".equals(actionToken)) {
+            highPriority = true;
+            actionIndex = 1;
+            if (parts.length <= actionIndex) {
+                return null;
+            }
+            actionToken = parts[actionIndex];
+        } else if (actionToken.startsWith("!") && actionToken.length() > 1) {
+            highPriority = true;
+            actionToken = actionToken.substring(1);
+        }
+        RuleAction action = RuleAction.fromToken(actionToken);
+        if (action == null) {
+            return null;
+        }
+        int operandStart = actionIndex + 1;
+        int operandCount = parts.length - operandStart;
+        if (operandCount == 1) {
+            String participantToken = parts[operandStart];
+            if (participantToken.contains("|")) {
+                return null;
+            }
+            return ParsedRuleLine.participant(action, highPriority, participantToken, lineNumber);
+        }
+        if (operandCount == 2) {
+            String sourceToken = parts[operandStart];
+            String targetToken = parts[operandStart + 1];
+            RuleTargetPattern targetPattern = RuleTargetPattern.parse(targetToken);
+            if (sourceToken.contains("|") || targetPattern == null) {
+                return null;
+            }
+            return ParsedRuleLine.sourceTarget(action, highPriority, sourceToken, targetToken, targetPattern, lineNumber);
+        }
+        return null;
+    }
+
+    private static final class ParsedRuleLine {
+        private final RuleAction action;
+        private final boolean highPriority;
+        private final String sourceToken;
+        private final String targetToken;
+        private final RuleTargetPattern targetPattern;
+        private final String participantToken;
+        private final int lineNumber;
+
+        private ParsedRuleLine(RuleAction action, boolean highPriority, String sourceToken, String targetToken,
+                               RuleTargetPattern targetPattern, String participantToken, int lineNumber) {
+            this.action = action;
+            this.highPriority = highPriority;
+            this.sourceToken = sourceToken;
+            this.targetToken = targetToken;
+            this.targetPattern = targetPattern;
+            this.participantToken = participantToken;
+            this.lineNumber = lineNumber;
+        }
+
+        static ParsedRuleLine sourceTarget(RuleAction action, boolean highPriority, String sourceToken,
+                                           String targetToken, RuleTargetPattern targetPattern, int lineNumber) {
+            return new ParsedRuleLine(action, highPriority, sourceToken, targetToken, targetPattern, null, lineNumber);
+        }
+
+        static ParsedRuleLine participant(RuleAction action, boolean highPriority, String participantToken,
+                                          int lineNumber) {
+            return new ParsedRuleLine(action, highPriority, null, null, null, participantToken, lineNumber);
+        }
+
+        ActivityLaunchRule toRule() {
+            if (participantToken != null) {
+                return new ActivityLaunchRule(
+                        action,
+                        RulePattern.parse(participantToken),
+                        highPriority,
+                        lineNumber
+                );
+            }
+            return new ActivityLaunchRule(
+                    action,
+                    RulePattern.parse(sourceToken),
+                    targetPattern,
+                    highPriority,
+                    lineNumber
+            );
+        }
+
+        String format() {
+            StringBuilder builder = new StringBuilder();
+            if (highPriority) {
+                builder.append('!');
+            }
+            builder.append(action.toToken());
+            if (participantToken != null) {
+                return builder.append(' ').append(participantToken).toString();
+            }
+            return builder.append(' ')
+                    .append(sourceToken)
+                    .append(' ')
+                    .append(targetToken)
+                    .toString();
+        }
     }
 }

@@ -349,12 +349,7 @@ public class RuleConfigActivity extends Activity {
             }
             String formatted = trimmed;
             if (!trimmed.startsWith("#")) {
-                String[] parts = trimmed.split("\\s+");
-                if (parts.length == 2 && RuleAction.fromToken(parts[0]) != null) {
-                    formatted = canonicalAction(parts[0]) + " " + parts[1];
-                } else if (parts.length == 3 && RuleAction.fromToken(parts[0]) != null) {
-                    formatted = canonicalAction(parts[0]) + " " + parts[1] + " " + parts[2];
-                }
+                formatted = RuleParser.formatRuleLine(trimmed);
             }
             if (builder.length() > 0) {
                 builder.append('\n');
@@ -375,8 +370,7 @@ public class RuleConfigActivity extends Activity {
             if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                 continue;
             }
-            String[] parts = trimmed.split("\\s+");
-            if ((parts.length != 2 && parts.length != 3) || RuleAction.fromToken(parts[0]) == null) {
+            if (!RuleParser.isValidRuleLine(trimmed)) {
                 invalidLines.add(Integer.valueOf(index + 1));
             }
         }
@@ -479,13 +473,6 @@ public class RuleConfigActivity extends Activity {
         } catch (PackageManager.NameNotFoundException ignored) {
             return false;
         }
-    }
-
-    private String canonicalAction(String token) {
-        if ("allow".equalsIgnoreCase(token)) {
-            return "agree";
-        }
-        return token.toLowerCase();
     }
 
     private String oldRuleImportMessage(OldRulesImportResult result) {

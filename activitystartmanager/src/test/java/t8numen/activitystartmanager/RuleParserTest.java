@@ -42,6 +42,39 @@ public class RuleParserTest {
     }
 
     @Test
+    public void findEffectiveMatch_prefersHighPriorityRuleBeforeNormalRules() {
+        List<ActivityLaunchRule> rules = RuleParser.parse(
+                "disagree * com.target.app\n"
+                        + "!agree com.source.app *\n");
+
+        ActivityLaunchRule match = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.source.app"),
+                app("com.target.app")
+        );
+
+        assertEquals(RuleAction.AGREE, match.getAction());
+        assertEquals(2, match.getDisplayLineNumber());
+        assertEquals(true, match.isHighPriority());
+    }
+
+    @Test
+    public void findEffectiveMatch_highPriorityAskCanBeatNormalAgree() {
+        List<ActivityLaunchRule> rules = RuleParser.parse(
+                "!ask * com.target.app\n"
+                        + "agree com.source.app com.target.app\n");
+
+        ActivityLaunchRule match = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.source.app"),
+                app("com.target.app")
+        );
+
+        assertEquals(RuleAction.ASK, match.getAction());
+        assertEquals(1, match.getDisplayLineNumber());
+    }
+
+    @Test
     public void findEffectiveMatch_usesAskWhenAgreeAndDisagreeMiss() {
         List<ActivityLaunchRule> rules = RuleParser.parse(
                 "agree com.source.app com.other.app\n"
@@ -55,6 +88,33 @@ public class RuleParserTest {
 
         assertEquals(RuleAction.ASK, match.getAction());
         assertEquals(2, match.getDisplayLineNumber());
+    }
+
+    @Test
+    public void findEffectiveMatch_supportsTargetExclusion() {
+        List<ActivityLaunchRule> rules = RuleParser.parse(
+                "!agree com.source.app *|com.blocked.app\n"
+                        + "disagree * com.blocked.app\n");
+
+        ActivityLaunchRule allowedMatch = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.source.app"),
+                app("com.allowed.app")
+        );
+        ActivityLaunchRule blockedMatch = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.source.app"),
+                app("com.blocked.app")
+        );
+
+        assertEquals(RuleAction.AGREE, allowedMatch.getAction());
+        assertEquals(RuleAction.DISAGREE, blockedMatch.getAction());
+    }
+
+    @Test
+    public void formatRuleLine_normalizesHighPriorityAllowAlias() {
+        assertEquals("!agree com.source.app *|com.blocked.app",
+                RuleParser.formatRuleLine("! allow com.source.app *|com.blocked.app"));
     }
 
     @Test
@@ -208,6 +268,33 @@ public class RuleParserTest {
         assertEquals(1, conflicts.size());
         assertEquals(2, conflicts.get(0).getPrimaryLineNumber());
         assertEquals(1, conflicts.get(0).getRelatedLineNumber());
+    }
+
+    @Test
+    public void findConflicts_ignoresDifferentPriorityOverlap() {
+        List<RuleConflict> conflicts = RuleParser.findConflicts(RuleParser.parse(
+                "!agree com.source.app *\n"
+                        + "disagree * com.target.app\n"));
+
+        assertEquals(0, conflicts.size());
+    }
+
+    @Test
+    public void findConflicts_respectsTargetExclusion() {
+        List<RuleConflict> conflicts = RuleParser.findConflicts(RuleParser.parse(
+                "agree com.source.app *|com.target.app\n"
+                        + "disagree * com.target.app\n"));
+
+        assertEquals(0, conflicts.size());
+    }
+
+    @Test
+    public void parse_rejectsExclusionOutsideTarget() {
+        List<ActivityLaunchRule> sourceExclusionRules = RuleParser.parse("agree *|com.source.app com.target.app");
+        List<ActivityLaunchRule> participantExclusionRules = RuleParser.parse("agree com.source.app|com.target.app");
+
+        assertEquals(0, sourceExclusionRules.size());
+        assertEquals(0, participantExclusionRules.size());
     }
 
     @Test

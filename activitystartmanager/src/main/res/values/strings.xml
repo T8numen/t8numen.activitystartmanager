@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Activity启动管理</string>
     <string name="xposed_description">在系统框架层按规则管理 Activity 启动。</string>
-    <string name="rule_help_text">每行一条规则：&lt;agree|disagree|ask&gt; &lt;来源&gt; &lt;目标&gt;\n也可写：&lt;agree|disagree|ask&gt; &lt;参与方&gt;，表示该应用拉起任意非系统应用，或任意非系统应用拉起该应用。\nallow 可作为 agree 的别名。\n\n支持写法：\n*：匹配非系统应用 Activity\nsystem：匹配系统 UID、系统预装应用或更新系统应用\ncom.example.app：匹配包名\ncom.example.app.*：匹配该包及子包\ncom.example.app/.MainActivity：匹配具体 Activity\n\n执行顺序：先按顺序匹配 agree/disagree；两者未命中时，再按顺序匹配 ask。ask 与 agree/disagree 重叠是允许的。\n\n应用内 Activity 跳转默认同意，不需要写规则；如需接管，使用 ask/disagree com.foo com.foo。\n\nask * * 表示默认询问非系统应用之间未被 agree/disagree 命中的 Activity 启动，桌面来源会默认豁免。需要调查系统调用时，显式使用 ask system * 或 ask * system。\n\n规则区中每行第一个非空字符串是 # 时，该行不生效。规则区只保存规则，不随版本自动写入说明。</string>
+    <string name="rule_help_text">每行一条规则：&lt;agree|disagree|ask&gt; &lt;来源&gt; &lt;目标&gt;\n也可写：&lt;agree|disagree|ask&gt; &lt;参与方&gt;，表示该应用拉起任意非系统应用，或任意非系统应用拉起该应用。\nallow 可作为 agree 的别名。\n\n支持写法：\n*：匹配非系统应用 Activity\nsystem：匹配系统 UID、系统预装应用或更新系统应用\ncom.example.app：匹配包名\ncom.example.app.*：匹配该包及子包\ncom.example.app/.MainActivity：匹配具体 Activity\n\n规则前加 ! 表示高权重，例如 !agree A *。高权重规则内部按行号优先；没有高权重命中时，普通 agree/disagree 先按顺序匹配，两者未命中时再匹配普通 ask。\n目标可加 | 排除，例如 agree A *|B 表示 A 可拉起任意非系统目标，但不包括 B；排除只作用于目标。\n\n应用内 Activity 跳转默认同意，不需要写规则；如需接管，使用 ask/disagree com.foo com.foo。\n\nask * * 表示默认询问非系统应用之间未被 agree/disagree 命中的 Activity 启动，桌面来源会默认豁免。需要调查系统调用时，显式使用 ask system * 或 ask * system。\n\n规则区中每行第一个非空字符串是 # 时，该行不生效。规则区只保存规则，不随版本自动写入说明。</string>
     <string name="show_rule_help">展开说明</string>
     <string name="hide_rule_help">收起说明</string>
     <string name="more_actions">更多</string>
