@@ -132,6 +132,10 @@ Xposed Modules Repo 要求：
 - `docs/release-assets.md`
 - `docs/xposed-modules-repo-submission.md`
 
+## 许可证
+
+本项目采用 `GPL-3.0-only` 许可证，详见 [LICENSE](LICENSE)。
+
 ## 致谢
 
 本项目早期构建和开发参考了 [MagicianGuo/Android-XposedTest](https://github.com/MagicianGuo/Android-XposedTest) 的项目结构和 Xposed 模块示例思路，感谢原作者提供的学习参考。
