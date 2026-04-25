@@ -37,6 +37,37 @@
 
 模块不主动联网，规则和最近记录保存在本地。
 
+## 界面展示
+
+以下截图来自 `1.6.9`：
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/readme/v1.6.9-home-rules.jpg" alt="主页与规则区" width="220"><br>主页与规则区</td>
+    <td align="center"><img src="docs/images/readme/v1.6.9-more-menu.jpg" alt="右上角更多菜单" width="220"><br>右上角更多菜单</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/readme/v1.6.9-help-expanded.jpg" alt="规则说明展开" width="220"><br>规则说明展开</td>
+    <td align="center"><img src="docs/images/readme/v1.6.9-ask-popup.jpg" alt="ask 询问悬浮窗" width="220"><br>ask 询问悬浮窗</td>
+  </tr>
+</table>
+
+## 项目定位与参考
+
+本项目的目标是做一个可审计、可修改、可长期维护的开源 Activity 启动规则管理模块。
+
+开发过程中参考过 [Activity链式启动管理器](https://github.com/Xposed-Modules-Repo/com.alphi.activitystartmanager) 的部分产品思路，例如跨应用启动询问、允许/拒绝规则、启动记录辅助编写规则等。该仓库的公开页面当前主要提供 `README.md` 和 `SUMMARY`，未看到可直接审计和修改的 Android 源码目录；因此本项目选择重新实现，并以 `GPL-3.0-only` 开源。
+
+对比仅基于双方公开 README 和本项目源码，不评价对方未公开实现：
+
+| 维度 | 本项目 | Activity链式启动管理器 |
+| --- | --- | --- |
+| 开源状态 | 完整源码开源，采用 `GPL-3.0-only` | Xposed Modules Repo 仓库当前未展示 Android 源码目录 |
+| 基础规则 | `agree` / `disagree` / `ask`，`allow` 作为 `agree` 别名 | `allow` / `ask` / `deny` |
+| 系统应用 | `*` 默认只匹配非系统应用，系统调用需显式使用 `system` | 公开 README 中说明自定义规则暂不支持配置系统应用 |
+| 规则增强 | 支持 `!` 高权重、目标排除 `A *|B`、两段式参与方规则 `agree A` | 公开 README 中提到高级规则、后台启动拦截和日志记录器 |
+| 交互重点 | 规则区行号、检查/冲突高亮、底部 ask 悬浮窗、长按复制规则可用 Activity | 启动对话框、规则模板、日志记录器辅助复制规则 |
+
 ## 规则格式
 
 每行一条规则：
