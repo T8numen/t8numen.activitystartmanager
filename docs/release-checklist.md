@@ -71,7 +71,7 @@ VERSION_CODE-VERSION_NAME
 例如：
 
 ```text
-37-1.6.6
+38-1.6.7
 ```
 
 Release 至少上传：

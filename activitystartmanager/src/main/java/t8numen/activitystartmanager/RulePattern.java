@@ -35,7 +35,7 @@ public final class RulePattern {
 
     public boolean matches(ActivityRef activityRef) {
         if (type == Type.ANY) {
-            return true;
+            return activityRef != null && !activityRef.isSystemApp();
         }
         if (activityRef == null || activityRef.getPackageName() == null) {
             return false;
@@ -80,7 +80,7 @@ public final class RulePattern {
             return false;
         }
         if (type == Type.ANY) {
-            return true;
+            return other.type != Type.SYSTEM;
         }
         switch (type) {
             case PACKAGE_PREFIX:
@@ -100,6 +100,10 @@ public final class RulePattern {
 
     public boolean overlaps(RulePattern other) {
         if (other == null) {
+            return false;
+        }
+        if (type == Type.ANY && other.type == Type.SYSTEM
+                || type == Type.SYSTEM && other.type == Type.ANY) {
             return false;
         }
         if (type == Type.ANY || other.type == Type.ANY) {

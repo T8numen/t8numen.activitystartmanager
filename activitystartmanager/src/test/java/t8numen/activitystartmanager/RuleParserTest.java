@@ -69,6 +69,31 @@ public class RuleParserTest {
     }
 
     @Test
+    public void findEffectiveMatch_universalAskMatchesUserAppsOnly() {
+        List<ActivityLaunchRule> rules = RuleParser.parse("ask * *");
+
+        ActivityLaunchRule userMatch = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.source.app"),
+                app("com.target.app")
+        );
+        ActivityLaunchRule systemSourceMatch = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.android.settings").withSystemApp(true),
+                app("com.target.app")
+        );
+        ActivityLaunchRule systemTargetMatch = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.source.app"),
+                app("com.android.settings").withSystemApp(true)
+        );
+
+        assertEquals(RuleAction.ASK, userMatch.getAction());
+        assertNull(systemSourceMatch);
+        assertNull(systemTargetMatch);
+    }
+
+    @Test
     public void findEffectiveMatch_supportsExplicitInternalAskAndDisagree() {
         List<ActivityLaunchRule> rules = RuleParser.parse(
                 "ask com.same.app com.same.app\n"
@@ -91,15 +116,32 @@ public class RuleParserTest {
 
     @Test
     public void findEffectiveMatch_supportsSystemAlias() {
-        List<ActivityLaunchRule> rules = RuleParser.parse("ask system *");
+        List<ActivityLaunchRule> rules = RuleParser.parse(
+                "ask system *\n"
+                        + "ask * system\n");
 
-        ActivityLaunchRule match = RuleParser.findEffectiveMatch(
+        ActivityLaunchRule systemSourceMatch = RuleParser.findEffectiveMatch(
                 rules,
                 app("com.android.vending").withSystemApp(true),
                 app("com.target.app")
         );
+        ActivityLaunchRule systemTargetMatch = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.source.app"),
+                app("com.android.settings").withSystemApp(true)
+        );
 
-        assertEquals(RuleAction.ASK, match.getAction());
+        assertEquals(RuleAction.ASK, systemSourceMatch.getAction());
+        assertEquals(RuleAction.ASK, systemTargetMatch.getAction());
+    }
+
+    @Test
+    public void findConflicts_treatsAnyAndSystemAsDisjoint() {
+        List<RuleConflict> conflicts = RuleParser.findConflicts(RuleParser.parse(
+                "agree * *\n"
+                        + "disagree system *\n"));
+
+        assertEquals(0, conflicts.size());
     }
 
     @Test

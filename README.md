@@ -14,8 +14,8 @@
 
 - 应用名：`Activity启动管理`
 - 包名：`t8numen.activitystartmanager`
-- 当前版本：`1.6.6`
-- Xposed Modules Repo Release tag：`37-1.6.6`
+- 当前版本：`1.6.7`
+- Xposed Modules Repo Release tag：`38-1.6.7`
 - 推荐环境：LSPosed 1.9.2、已 Root 设备
 - 已测试环境：ColorOS / Android 15
 
@@ -47,7 +47,7 @@
 
 支持写法：
 
-- `*`：匹配任意 Activity。
+- `*`：匹配非系统应用 Activity。
 - `system`：匹配系统 UID、系统预装应用或更新系统应用。
 - `com.example.app`：匹配包名。
 - `com.example.app.*`：匹配该包及子包。
@@ -62,6 +62,8 @@ agree * com.sspai.cuto.android
 ask bin.mt.plus com.openai.chatgpt
 ask * org.videolan.vlc
 ask * *
+ask system *
+ask * system
 ```
 
 ## 执行顺序
@@ -117,7 +119,7 @@ Xposed Modules Repo 要求：
 
 - GitHub 仓库名：`t8numen.activitystartmanager`
 - 仓库描述：`Activity启动管理`
-- Release tag：`37-1.6.6`
+- Release tag：`38-1.6.7`
 - Release 资产：上传 release APK
 - 仓库根目录保留 `SUMMARY` 和 `README.md`
 
