@@ -14,12 +14,14 @@ public class RuleParserTest {
                 "# comment\n"
                         + "\n"
                         + "allow com.source.app com.target.app\n"
+                        + "agree com.party.app\n"
                         + "bad line\n"
                         + "ask * com.target.app/.MainActivity\n");
 
-        assertEquals(2, rules.size());
+        assertEquals(3, rules.size());
         assertEquals(RuleAction.AGREE, rules.get(0).getAction());
-        assertEquals(RuleAction.ASK, rules.get(1).getAction());
+        assertEquals(RuleAction.AGREE, rules.get(1).getAction());
+        assertEquals(RuleAction.ASK, rules.get(2).getAction());
     }
 
     @Test
@@ -115,6 +117,58 @@ public class RuleParserTest {
     }
 
     @Test
+    public void findEffectiveMatch_supportsParticipantAgree() {
+        List<ActivityLaunchRule> rules = RuleParser.parse("agree com.party.app");
+
+        ActivityLaunchRule outgoingMatch = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.party.app"),
+                app("com.target.app")
+        );
+        ActivityLaunchRule incomingMatch = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.source.app"),
+                app("com.party.app")
+        );
+        ActivityLaunchRule internalMatch = RuleParser.findEffectiveMatch(
+                rules,
+                activity("com.party.app", ".SourceActivity"),
+                activity("com.party.app", ".TargetActivity")
+        );
+        ActivityLaunchRule systemTargetMatch = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.party.app"),
+                app("com.android.settings").withSystemApp(true)
+        );
+
+        assertEquals(RuleAction.AGREE, outgoingMatch.getAction());
+        assertEquals(RuleAction.AGREE, incomingMatch.getAction());
+        assertNull(internalMatch);
+        assertNull(systemTargetMatch);
+    }
+
+    @Test
+    public void findEffectiveMatch_supportsParticipantAskWhenAgreeAndDisagreeMiss() {
+        List<ActivityLaunchRule> rules = RuleParser.parse(
+                "agree com.other.app com.target.app\n"
+                        + "ask com.party.app\n");
+
+        ActivityLaunchRule outgoingMatch = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.party.app"),
+                app("com.target.app")
+        );
+        ActivityLaunchRule incomingMatch = RuleParser.findEffectiveMatch(
+                rules,
+                app("com.source.app"),
+                app("com.party.app")
+        );
+
+        assertEquals(RuleAction.ASK, outgoingMatch.getAction());
+        assertEquals(RuleAction.ASK, incomingMatch.getAction());
+    }
+
+    @Test
     public void findEffectiveMatch_supportsSystemAlias() {
         List<ActivityLaunchRule> rules = RuleParser.parse(
                 "ask system *\n"
@@ -142,6 +196,18 @@ public class RuleParserTest {
                         + "disagree system *\n"));
 
         assertEquals(0, conflicts.size());
+    }
+
+    @Test
+    public void findConflicts_reportsParticipantRuleOverlap() {
+        List<RuleConflict> conflicts = RuleParser.findConflicts(RuleParser.parse(
+                "agree com.party.app\n"
+                        + "disagree com.party.app com.target.app\n"
+                        + "disagree com.same.app com.same.app\n"));
+
+        assertEquals(1, conflicts.size());
+        assertEquals(2, conflicts.get(0).getPrimaryLineNumber());
+        assertEquals(1, conflicts.get(0).getRelatedLineNumber());
     }
 
     @Test

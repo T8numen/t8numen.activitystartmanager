@@ -12,32 +12,32 @@
 - 包名：`t8numen.activitystartmanager`
 - GitHub 仓库名：`t8numen.activitystartmanager`
 - GitHub 仓库描述：`Activity启动管理`
-- 当前候选版本：`1.6.7`
-- 当前候选 versionCode：`38`
-- Release tag：`38-1.6.7`
+- 当前候选版本：`1.6.8`
+- 当前候选 versionCode：`39`
+- Release tag：`39-1.6.8`
 
 ## 首次发布步骤
 
 1. 在 GitHub 创建公开仓库 `t8numen.activitystartmanager`。
 2. 确认仓库描述为 `Activity启动管理`。
 3. 推送源码，仓库根目录保留 `README.md` 和 `SUMMARY`。
-4. 创建 GitHub Release，tag 使用 `38-1.6.7`。
+4. 创建 GitHub Release，tag 使用 `39-1.6.8`。
 5. 上传 release APK、SHA256 校验文件和源码归档。
 6. 通过 https://modules.lsposed.org/submission/ 提交包名。
 
 ## Release 文案模板
 
 ```text
-Activity启动管理 1.6.7
+Activity启动管理 1.6.8
 
 测试环境：
 - LSPosed 1.9.2
 - ColorOS / Android 15
 
 主要变化：
-- 将规则中的 `*` 调整为仅匹配非系统应用，避免 `ask * *` 默认接管系统应用或系统组件之间的 Activity 启动。
-- 保留 `system` 显式规则别名；需要调查系统拉起时可使用 `ask system *` 或 `ask * system`。
-- 新增 GPL-3.0-only 许可证声明。
+- 新增两段式参与方规则：`agree A`、`disagree A`、`ask A`。
+- 修复规则编辑区右侧空白无法像普通编辑框一样点按定位的问题。
+- 底部空白区继续保留防误选最后一行文本的保护逻辑。
 
 安装/更新：
 - 安装后在 LSPosed 中启用模块。

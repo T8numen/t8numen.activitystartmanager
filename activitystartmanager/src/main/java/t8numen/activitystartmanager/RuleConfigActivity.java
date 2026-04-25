@@ -350,7 +350,9 @@ public class RuleConfigActivity extends Activity {
             String formatted = trimmed;
             if (!trimmed.startsWith("#")) {
                 String[] parts = trimmed.split("\\s+");
-                if (parts.length == 3 && RuleAction.fromToken(parts[0]) != null) {
+                if (parts.length == 2 && RuleAction.fromToken(parts[0]) != null) {
+                    formatted = canonicalAction(parts[0]) + " " + parts[1];
+                } else if (parts.length == 3 && RuleAction.fromToken(parts[0]) != null) {
                     formatted = canonicalAction(parts[0]) + " " + parts[1] + " " + parts[2];
                 }
             }
@@ -374,7 +376,7 @@ public class RuleConfigActivity extends Activity {
                 continue;
             }
             String[] parts = trimmed.split("\\s+");
-            if (parts.length != 3 || RuleAction.fromToken(parts[0]) == null) {
+            if ((parts.length != 2 && parts.length != 3) || RuleAction.fromToken(parts[0]) == null) {
                 invalidLines.add(Integer.valueOf(index + 1));
             }
         }

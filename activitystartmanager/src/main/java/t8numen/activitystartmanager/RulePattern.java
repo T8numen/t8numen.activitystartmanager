@@ -58,6 +58,24 @@ public final class RulePattern {
         return type == Type.ANY;
     }
 
+    boolean canMatchNonSystemAppPattern() {
+        return type != Type.SYSTEM;
+    }
+
+    String getSpecificPackageName() {
+        switch (type) {
+            case PACKAGE_EXACT:
+                return value;
+            case COMPONENT_EXACT:
+                return getComponentPackage();
+            case ANY:
+            case SYSTEM:
+            case PACKAGE_PREFIX:
+            default:
+                return null;
+        }
+    }
+
     public boolean explicitlyMatchesPackage(String packageName) {
         if (packageName == null) {
             return false;

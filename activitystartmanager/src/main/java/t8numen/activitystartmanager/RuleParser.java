@@ -20,19 +20,24 @@ public final class RuleParser {
                 continue;
             }
             String[] parts = line.split("\\s+");
-            if (parts.length != 3) {
-                continue;
-            }
             RuleAction action = RuleAction.fromToken(parts[0]);
             if (action == null) {
                 continue;
             }
-            rules.add(new ActivityLaunchRule(
-                    action,
-                    RulePattern.parse(parts[1]),
-                    RulePattern.parse(parts[2]),
-                    index
-            ));
+            if (parts.length == 2) {
+                rules.add(new ActivityLaunchRule(
+                        action,
+                        RulePattern.parse(parts[1]),
+                        index
+                ));
+            } else if (parts.length == 3) {
+                rules.add(new ActivityLaunchRule(
+                        action,
+                        RulePattern.parse(parts[1]),
+                        RulePattern.parse(parts[2]),
+                        index
+                ));
+            }
         }
         return rules;
     }

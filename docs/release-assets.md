@@ -77,7 +77,7 @@ VERSION_CODE-VERSION_NAME
 例如：
 
 ```text
-38-1.6.7
+39-1.6.8
 ```
 
 ## 当前维护约定

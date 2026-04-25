@@ -189,14 +189,10 @@ public class RuleEditText extends EditText {
 
         int start = layout.getLineStart(line);
         int end = layout.getLineEnd(line);
-        if (isBlankLine(text, start, end)) {
-            return false;
-        }
 
         float x = event.getX() + getScrollX() - getTotalPaddingLeft();
         int slop = dp(8);
-        return x >= layout.getLineLeft(line) - slop
-                && x <= layout.getLineRight(line) + slop;
+        return x >= layout.getLineLeft(line) - slop || isBlankLine(text, start, end) && x >= -slop;
     }
 
     private boolean isBlankLine(CharSequence text, int start, int end) {

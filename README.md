@@ -14,8 +14,8 @@
 
 - 应用名：`Activity启动管理`
 - 包名：`t8numen.activitystartmanager`
-- 当前版本：`1.6.7`
-- Xposed Modules Repo Release tag：`38-1.6.7`
+- 当前版本：`1.6.8`
+- Xposed Modules Repo Release tag：`39-1.6.8`
 - 推荐环境：LSPosed 1.9.2、已 Root 设备
 - 已测试环境：ColorOS / Android 15
 
@@ -43,6 +43,7 @@
 
 ```text
 <agree|disagree|ask> <来源> <目标>
+<agree|disagree|ask> <参与方>
 ```
 
 支持写法：
@@ -60,6 +61,7 @@ agree * com.android.intentresolver/.ChooserActivityLauncher
 allow * com.android.documentsui/.picker.PickActivity
 agree * com.sspai.cuto.android
 ask bin.mt.plus com.openai.chatgpt
+agree com.tencent.mobileqq
 ask * org.videolan.vlc
 ask * *
 ask system *
@@ -69,6 +71,16 @@ ask * system
 ## 执行顺序
 
 规则按顺序匹配。先匹配 `agree/disagree`，两者都未命中时再匹配 `ask`。
+
+两段式参与方规则用于简化“来源或目标包含该应用”的规则：
+
+```text
+agree com.example.app
+disagree com.example.app
+ask com.example.app
+```
+
+含义是该应用拉起任意非系统应用，或任意非系统应用拉起该应用。系统应用仍需显式使用 `system`。
 
 应用内 Activity 跳转默认同意，不需要写规则；如果需要接管应用内跳转，可显式添加：
 
@@ -119,7 +131,7 @@ Xposed Modules Repo 要求：
 
 - GitHub 仓库名：`t8numen.activitystartmanager`
 - 仓库描述：`Activity启动管理`
-- Release tag：`38-1.6.7`
+- Release tag：`39-1.6.8`
 - Release 资产：上传 release APK
 - 仓库根目录保留 `SUMMARY` 和 `README.md`
 
