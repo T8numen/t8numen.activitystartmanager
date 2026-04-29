@@ -57,9 +57,9 @@ public class HookEntry implements IXposedHookLoadPackage {
                 Context context = getSystemContextFromActivityThread(classLoader);
                 if (context != null) {
                     SystemServerBridge.ensureReceivers(context);
-                    RuleRepository.forceRefreshAsync(context);
-                    ModuleSettingsStore.forceRefreshAsync(context);
-                    LogUtil.writeLog("rule cache warmup requested");
+                    RuleRepository.forceRefreshNow(context);
+                    ModuleSettingsStore.forceRefreshNow(context);
+                    LogUtil.writeLog("rule cache warmup finished");
                     return;
                 }
                 try {

@@ -16,6 +16,7 @@ public final class RuleRepository {
     private static final Object sLock = new Object();
     private static long sLastLoadedAt;
     private static boolean sRefreshInFlight;
+    private static boolean sCacheInitialized;
     private static String sCachedRuleText = ModuleConfig.DEFAULT_RULES;
     private static List<ActivityLaunchRule> sCachedRules =
             Collections.unmodifiableList(RuleParser.parse(ModuleConfig.DEFAULT_RULES));
@@ -24,6 +25,7 @@ public final class RuleRepository {
     }
 
     public static List<ActivityLaunchRule> loadRulesFromProvider(Context context) {
+        refreshNowIfUninitialized(context);
         requestRefreshIfNeeded(context);
         synchronized (sLock) {
             return sCachedRules;
@@ -35,8 +37,14 @@ public final class RuleRepository {
     }
 
     public static void forceRefreshNow(Context context) {
-        String ruleText = queryRules(context);
-        replaceCachedRules(ruleText);
+        String ruleText = queryRulesOrNull(context, ModuleConfig.PROVIDER_URI);
+        if (ruleText != null) {
+            replaceCachedRules(ruleText);
+            return;
+        }
+        synchronized (sLock) {
+            sRefreshInFlight = false;
+        }
     }
 
     public static void replaceCachedRules(String rawRules) {
@@ -45,7 +53,20 @@ public final class RuleRepository {
             sCachedRuleText = safeRules;
             sCachedRules = Collections.unmodifiableList(RuleParser.parse(safeRules));
             sLastLoadedAt = SystemClock.elapsedRealtime();
+            sCacheInitialized = true;
             sRefreshInFlight = false;
+        }
+    }
+
+    private static void refreshNowIfUninitialized(Context context) {
+        synchronized (sLock) {
+            if (sCacheInitialized) {
+                return;
+            }
+        }
+        String ruleText = queryRulesOrNull(context, ModuleConfig.PROVIDER_URI);
+        if (ruleText != null) {
+            replaceCachedRules(ruleText);
         }
     }
 
@@ -64,13 +85,17 @@ public final class RuleRepository {
         }
         Thread refreshThread = new Thread(() -> {
             try {
-                String ruleText = queryRules(context);
+                String ruleText = queryRulesOrNull(context, ModuleConfig.PROVIDER_URI);
+                if (ruleText == null) {
+                    return;
+                }
                 synchronized (sLock) {
                     if (!ruleText.equals(sCachedRuleText)) {
                         sCachedRuleText = ruleText;
                         sCachedRules = Collections.unmodifiableList(RuleParser.parse(ruleText));
                     }
                     sLastLoadedAt = SystemClock.elapsedRealtime();
+                    sCacheInitialized = true;
                 }
             } finally {
                 synchronized (sLock) {
@@ -153,8 +178,13 @@ public final class RuleRepository {
     }
 
     private static String queryRules(Context context, android.net.Uri uri) {
+        String rules = queryRulesOrNull(context, uri);
+        return rules == null ? ModuleConfig.DEFAULT_RULES : rules;
+    }
+
+    private static String queryRulesOrNull(Context context, android.net.Uri uri) {
         if (context == null || uri == null) {
-            return ModuleConfig.DEFAULT_RULES;
+            return null;
         }
         Cursor cursor = null;
         try {
@@ -163,9 +193,7 @@ public final class RuleRepository {
                 int columnIndex = cursor.getColumnIndex(ModuleConfig.COLUMN_RULE_TEXT);
                 if (columnIndex >= 0) {
                     String value = cursor.getString(columnIndex);
-                    if (value != null) {
-                        return value;
-                    }
+                    return value == null ? "" : value;
                 }
             }
         } catch (Throwable throwable) {
@@ -175,7 +203,7 @@ public final class RuleRepository {
                 cursor.close();
             }
         }
-        return ModuleConfig.DEFAULT_RULES;
+        return null;
     }
 
     private static List<String> cleanImportedRuleLines(String rawRules) {

@@ -14,8 +14,8 @@
 
 - 应用名：`Activity启动管理`
 - 包名：`t8numen.activitystartmanager`
-- 当前版本：`1.6.9`
-- Xposed Modules Repo Release tag：`40-1.6.9`
+- 当前版本：`1.7.0`
+- Xposed Modules Repo Release tag：`41-1.7.0`
 - 推荐环境：LSPosed 1.9.2、已 Root 设备
 - 已测试环境：ColorOS / Android 15
 
@@ -178,7 +178,7 @@ Xposed Modules Repo 要求：
 
 - GitHub 仓库名：`t8numen.activitystartmanager`
 - 仓库描述：`Activity启动管理`
-- Release tag：`40-1.6.9`
+- Release tag：`41-1.7.0`
 - Release 资产：上传 release APK
 - 仓库根目录保留 `SUMMARY` 和 `README.md`
 
