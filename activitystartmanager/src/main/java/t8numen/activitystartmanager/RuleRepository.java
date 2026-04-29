@@ -16,7 +16,6 @@ public final class RuleRepository {
     private static final Object sLock = new Object();
     private static long sLastLoadedAt;
     private static boolean sRefreshInFlight;
-    private static boolean sCacheInitialized;
     private static String sCachedRuleText = ModuleConfig.DEFAULT_RULES;
     private static List<ActivityLaunchRule> sCachedRules =
             Collections.unmodifiableList(RuleParser.parse(ModuleConfig.DEFAULT_RULES));
@@ -25,7 +24,6 @@ public final class RuleRepository {
     }
 
     public static List<ActivityLaunchRule> loadRulesFromProvider(Context context) {
-        refreshNowIfUninitialized(context);
         requestRefreshIfNeeded(context);
         synchronized (sLock) {
             return sCachedRules;
@@ -53,20 +51,7 @@ public final class RuleRepository {
             sCachedRuleText = safeRules;
             sCachedRules = Collections.unmodifiableList(RuleParser.parse(safeRules));
             sLastLoadedAt = SystemClock.elapsedRealtime();
-            sCacheInitialized = true;
             sRefreshInFlight = false;
-        }
-    }
-
-    private static void refreshNowIfUninitialized(Context context) {
-        synchronized (sLock) {
-            if (sCacheInitialized) {
-                return;
-            }
-        }
-        String ruleText = queryRulesOrNull(context, ModuleConfig.PROVIDER_URI);
-        if (ruleText != null) {
-            replaceCachedRules(ruleText);
         }
     }
 
@@ -87,6 +72,9 @@ public final class RuleRepository {
             try {
                 String ruleText = queryRulesOrNull(context, ModuleConfig.PROVIDER_URI);
                 if (ruleText == null) {
+                    synchronized (sLock) {
+                        sLastLoadedAt = 0L;
+                    }
                     return;
                 }
                 synchronized (sLock) {
@@ -95,7 +83,6 @@ public final class RuleRepository {
                         sCachedRules = Collections.unmodifiableList(RuleParser.parse(ruleText));
                     }
                     sLastLoadedAt = SystemClock.elapsedRealtime();
-                    sCacheInitialized = true;
                 }
             } finally {
                 synchronized (sLock) {

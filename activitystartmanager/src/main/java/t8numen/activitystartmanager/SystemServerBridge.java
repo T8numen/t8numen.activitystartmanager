@@ -37,9 +37,9 @@ final class SystemServerBridge {
                             return;
                         }
                         if (ModuleConfig.ACTION_RULES_UPDATED.equals(intent.getAction())) {
-                            RuleRepository.forceRefreshNow(systemContext);
-                            ModuleSettingsStore.forceRefreshNow(systemContext);
-                            LogUtil.writeLog("rules cache refreshed by update broadcast");
+                            RuleRepository.forceRefreshAsync(systemContext);
+                            ModuleSettingsStore.forceRefreshAsync(systemContext);
+                            LogUtil.writeLog("rules cache refresh requested by update broadcast");
                             return;
                         }
                         handleAskDecision(systemContext, intent);
